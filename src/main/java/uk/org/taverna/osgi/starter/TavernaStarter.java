@@ -18,7 +18,7 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package uk.org.taverna.osgi.starter;
+package org.apache.taverna.osgi.starter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,19 +31,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import uk.org.taverna.osgi.OsgiLauncher;
-import uk.org.taverna.platform.data.api.DataService;
-import uk.org.taverna.platform.run.api.RunService;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleReader;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleWriter;
+import org.apache.taverna.osgilauncher.OsgiLauncher;
+import org.apache.taverna.platform.run.api.RunService;
+import org.apache.taverna.scufl2.api.io.WorkflowBundleIO;
+import org.apache.taverna.scufl2.api.io.WorkflowBundleReader;
+import org.apache.taverna.scufl2.api.io.WorkflowBundleWriter;
 
 /**
  *
@@ -52,35 +51,37 @@ import uk.org.taverna.scufl2.api.io.WorkflowBundleWriter;
  */
 public class TavernaStarter {
 
-	private static final String scufl2Version = "0.11.0";
+	private static final String languageVersion = "0.15.1";
+	private static final String osgiVersion = "0.2.1";
+	private static final String engineVersion = "3.1.0";
+	private static final String commonActivitiesVersion = "2.1.0";
+
 
 	private static final String systemPackages =
-			"uk.org.taverna.platform.data.api;version=1.0.0," +
-			"uk.org.taverna.platform.execution.api;version=1.0.0," +
-			"uk.org.taverna.platform.run.api;version=1.0.0," +
-			"uk.org.taverna.configuration.app;version=0.1.1," +
-			"uk.org.taverna.scufl2.api.activity;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.annotation;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.common;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.configurations;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.container;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.core;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.dispatchstack;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.io;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.io.structure;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.iterationstrategy;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.port;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.profiles;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.api.property;version="+scufl2Version+"," +
-			"uk.org.taverna.scufl2.ucfpackage;version="+scufl2Version+"," +
-			"net.sf.taverna.t2.security.credentialmanager;version=2.0.1," +
-			"net.sf.taverna.t2.lang.observer;version=2.0.1," +
-			"uk.org.taverna.platform.report;version=0.1.3," +
+			"org.apache.taverna.platform.execution.api;version=" + engineVersion + "," +
+			"org.apache.taverna.platform.run.api;version="+ engineVersion + "," +
+			"org.apache.taverna.configuration.app;version=" + engineVersion + "," +
+			"org.apache.taverna.security.credentialmanager;version=" + engineVersion + "," +
+			"org.apache.taverna.scufl2.api.activity;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.annotation;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.common;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.configurations;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.container;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.core;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.dispatchstack;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.io;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.io.structure;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.iterationstrategy;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.port;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.profiles;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.api.property;version="+languageVersion+"," +
+			"org.apache.taverna.scufl2.ucfpackage;version="+languageVersion+"," +
+			"org.apache.taverna.lang.observer;version=" + engineVersion + "," +
+			"org.apache.taverna.platform.report;version=" + engineVersion + "," +
 			"org.apache.log4j;version=1.2.16";
 
 	private OsgiLauncher osgiLauncher;
 	private BundleContext context;
-	private DataService dataService;
 	private RunService runService;
 	private CredentialManager credentialManager;
 	private WorkflowBundleIO workflowBundleIO;
@@ -123,24 +124,6 @@ public class TavernaStarter {
 	 */
 	public BundleContext getContext() {
 		return context;
-	}
-
-	/**
-	 * Returns the dataService.
-	 *
-	 * @return the dataService
-	 */
-	public DataService getDataService() {
-		if (dataService == null && context != null) {
-			ServiceReference<DataService> serviceReference = context
-					.getServiceReference(DataService.class);
-			if (serviceReference == null) {
-				System.out.println("Can't find DataService");
-			} else {
-				dataService = context.getService(serviceReference);
-			}
-		}
-		return dataService;
 	}
 
 	/**
